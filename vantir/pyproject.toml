@@ -1,0 +1,24 @@
+[project]
+name = "split-ontology"
+version = "0.1.0"
+description = "Vantir Technologies MVP for detecting Split building-record discrepancies."
+requires-python = ">=3.12"
+dependencies = [
+  "fastapi>=0.124.0",
+  "httpx>=0.28.0",
+  "pytest>=9.0.0",
+  "shapely>=2.1.0",
+  "uvicorn[standard]>=0.38.0",
+]
+
+[build-system]
+requires = ["setuptools>=69"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools.packages.find]
+where = ["backend"]
+
+[tool.pytest.ini_options]
+pythonpath = ["backend"]
+testpaths = ["backend/tests"]
+addopts = "-q"
