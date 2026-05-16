@@ -358,7 +358,7 @@ for (const f of landuse.features) {
 }
 const luGrid = buildBboxGrid(luData.map(d => ({ bbox: d.bbox })), CELL);
 
-const PROTECTED_ZONES = new Set(["Vinograd", "Maslinik", "Oranica", "Crnogorica", "Rasadnik", "Kamenjar", "Park", "TravnatePovrsine"]);
+const PROTECTED_ZONES = new Set(["Vinograd", "Maslinik", "Oranica", "Crnogorica", "Park"]);
 const LEGITIMATE_ZONES = new Set(["SportskoIgraliste", "PovrsineCeste", "Parkiraliste"]);
 
 function getLandUse(pt) {
@@ -388,6 +388,7 @@ for (let i = 0; i < msData.length; i++) {
   // Buildings on sports fields, economic zones, parking, courtyards → likely legitimate
   if (onLegitimateLand) status = "matched";
 
+  const matchedOss = msMatchedTo[i] >= 0 ? dguData[msMatchedTo[i]] : null;
   outputFeatures.push({
     type: "Feature",
     properties: {
@@ -397,6 +398,11 @@ for (let i = 0; i < msData.length; i++) {
       confidence: d.feature.properties.confidence || 0.9,
       source: "microsoft",
       land_zone: landZone || "unknown",
+      centroid_lon: d.centroid[0],
+      centroid_lat: d.centroid[1],
+      building_id: matchedOss ? matchedOss.feature.properties.building_id : null,
+      building_type: matchedOss ? matchedOss.feature.properties.building_type : null,
+      municipality_id: matchedOss ? matchedOss.feature.properties.municipality_id : null,
     },
     geometry: d.feature.geometry,
   });
@@ -435,6 +441,10 @@ for (let j = 0; j < dguData.length; j++) {
       confidence: 0,
       source: "oss",
       building_type: d.feature.properties.building_type || null,
+      building_id: d.feature.properties.building_id || null,
+      municipality_id: d.feature.properties.municipality_id || null,
+      centroid_lon: d.centroid[0],
+      centroid_lat: d.centroid[1],
     },
     geometry: d.feature.geometry,
   });

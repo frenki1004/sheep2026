@@ -1,5 +1,6 @@
 import "maplibre-gl/dist/maplibre-gl.css";
 import { Map, Popup } from "maplibre-gl";
+import { init3D, destroy3D } from "./view3d.js";
 
 const map = new Map({
   container: "map",
@@ -10,6 +11,7 @@ const map = new Map({
         type: "raster",
         tiles: ["https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}"],
         tileSize: 256,
+        maxzoom: 19,
         attribution: "Esri, Maxar, Earthstar Geographics",
       },
       terrain: {
@@ -24,6 +26,7 @@ const map = new Map({
   },
   center: [16.44, 43.508],
   zoom: 14.5,
+  maxZoom: 20,
   pitch: 55,
   bearing: -20,
   antialias: true,
@@ -141,13 +144,19 @@ map.on("load", async () => {
   map.on("click", "buildings-3d", (e) => {
     e.preventDefault();
     const p = e.features[0].properties;
-    const html = `
+    const lon = p.centroid_lon || e.lngLat.lng;
+    const lat = p.centroid_lat || e.lngLat.lat;
+    let html = `
       <b>Status:</b> ${p.status}<br/>
       <b>Area:</b> ${p.area_m2 ? Math.round(p.area_m2) + " m²" : "unknown"}<br/>
       <b>Height:</b> ${p.height > 0 ? p.height + "m" : "est. 8m"}<br/>
-      <b>Confidence:</b> ${p.confidence ? (p.confidence * 100).toFixed(0) + "%" : "N/A"}<br/>
-      <b>Source:</b> ${p.source || "N/A"}
     `;
+    if (p.building_type) html += `<b>Type:</b> ${p.building_type}<br/>`;
+    if (p.building_id) html += `<b>Zgrada ID:</b> ${p.building_id}<br/>`;
+    if (p.land_zone && p.land_zone !== "unknown") html += `<b>Land zone:</b> ${p.land_zone}<br/>`;
+    html += `<div style="margin-top:4px; font-size:11px;">`;
+    html += `<a href="https://www.google.com/maps/place/${lat},${lon}/@${lat},${lon},20z" target="_blank" style="color:#4da6ff; text-decoration:underline;">View on Google Maps</a>`;
+    html += `</div>`;
     new Popup({ offset: 15 })
       .setLngLat(e.lngLat)
       .setHTML(html)
@@ -165,4 +174,77 @@ map.on("load", async () => {
 
   map.on("mouseenter", "buildings-3d", () => { map.getCanvas().style.cursor = "pointer"; });
   map.on("mouseleave", "buildings-3d", () => { map.getCanvas().style.cursor = ""; });
+});
+
+// Address search (Nominatim)
+const searchInput = document.getElementById("search-input");
+const searchResults = document.getElementById("search-results");
+let searchTimeout = null;
+
+searchInput.addEventListener("input", () => {
+  clearTimeout(searchTimeout);
+  const q = searchInput.value.trim();
+  if (q.length < 3) { searchResults.classList.remove("visible"); return; }
+  searchTimeout = setTimeout(async () => {
+    const res = await fetch(`https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(q + ", Split, Croatia")}&format=json&limit=5`);
+    const data = await res.json();
+    if (data.length === 0) { searchResults.classList.remove("visible"); return; }
+    searchResults.innerHTML = data.map(r =>
+      `<div class="result" data-lon="${r.lon}" data-lat="${r.lat}">${r.display_name.split(",").slice(0, 3).join(",")}</div>`
+    ).join("");
+    searchResults.classList.add("visible");
+  }, 400);
+});
+
+searchResults.addEventListener("click", (e) => {
+  const el = e.target.closest(".result");
+  if (!el) return;
+  const lon = parseFloat(el.dataset.lon);
+  const lat = parseFloat(el.dataset.lat);
+  map.flyTo({ center: [lon, lat], zoom: 17, pitch: 55 });
+  searchResults.classList.remove("visible");
+  searchInput.value = el.textContent;
+});
+
+searchInput.addEventListener("keydown", (e) => {
+  if (e.key === "Escape") { searchResults.classList.remove("visible"); searchInput.blur(); }
+});
+
+document.addEventListener("click", (e) => {
+  if (!e.target.closest(".search-bar")) searchResults.classList.remove("visible");
+});
+
+// View toggle
+let cesiumLoaded = false;
+const btn2d = document.getElementById("btn-2d");
+const btn3d = document.getElementById("btn-3d");
+const mapEl = document.getElementById("map");
+const cesiumEl = document.getElementById("cesium-container");
+
+const searchBar = document.getElementById("search-bar");
+const statsPanel = document.querySelector(".stats-panel");
+
+btn3d.addEventListener("click", async () => {
+  btn3d.classList.add("active");
+  btn2d.classList.remove("active");
+  mapEl.style.display = "none";
+  cesiumEl.style.display = "block";
+  searchBar.style.display = "none";
+  statsPanel.style.display = "none";
+  if (!cesiumLoaded) {
+    await init3D("cesium-container");
+    cesiumLoaded = true;
+  }
+  const canvas = cesiumEl.querySelector("canvas");
+  if (canvas) canvas.focus();
+});
+
+btn2d.addEventListener("click", () => {
+  btn2d.classList.add("active");
+  btn3d.classList.remove("active");
+  cesiumEl.style.display = "none";
+  mapEl.style.display = "block";
+  searchBar.style.display = "block";
+  statsPanel.style.display = "block";
+  map.resize();
 });

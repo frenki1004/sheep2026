@@ -4,75 +4,190 @@
     <meta charset="UTF-8" />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>KatastarEye — Split Building Discrepancy Viewer</title>
+    <title>Vantir Technologies</title>
     <style>
       * { margin: 0; padding: 0; box-sizing: border-box; }
       body { overflow: hidden; font-family: 'Inter', system-ui, sans-serif; }
       #map { position: absolute; top: 0; left: 0; width: 100vw; height: 100vh; }
       .panel {
         position: absolute;
-        background: rgba(255, 255, 255, 0.94);
-        color: #1a1a1a;
-        border-radius: 10px;
+        background: rgba(10, 10, 10, 0.88);
+        color: #f0f0f0;
+        border-radius: 6px;
         font-family: 'JetBrains Mono', monospace;
-        backdrop-filter: blur(8px);
-        border: 1px solid rgba(0,0,0,0.08);
-        box-shadow: 0 2px 12px rgba(0,0,0,0.1);
+        backdrop-filter: blur(12px);
+        border: 1px solid rgba(255,255,255,0.1);
+        box-shadow: 0 4px 20px rgba(0,0,0,0.4);
       }
       .stats-panel {
-        top: 16px; left: 16px;
-        padding: 18px 22px;
-        font-size: 14px;
-        min-width: 230px;
-      }
-      .stats-panel h2 { margin: 0 0 14px; font-size: 20px; letter-spacing: -0.5px; }
-      .stats-panel .row { margin-bottom: 8px; display: flex; align-items: center; gap: 8px; }
-      .stats-panel .dot { width: 12px; height: 12px; border-radius: 3px; display: inline-block; }
-      .stats-panel b { font-variant-numeric: tabular-nums; }
-      .legend-panel {
-        bottom: 16px; right: 16px;
+        top: 14px; left: 14px;
         padding: 14px 18px;
+        font-size: 13px;
+        min-width: 220px;
+      }
+      .stats-panel h2 {
+        margin: 0 0 12px;
+        font-size: 15px;
+        font-weight: 700;
+        letter-spacing: 0.5px;
+        text-transform: uppercase;
+        color: #fff;
+      }
+      .stats-panel .row {
+        margin-bottom: 6px;
+        display: flex;
+        align-items: center;
+        gap: 8px;
         font-size: 12px;
-        line-height: 1.8;
+      }
+      .stats-panel .dot { width: 10px; height: 10px; border-radius: 2px; display: inline-block; }
+      .stats-panel b { font-variant-numeric: tabular-nums; color: #fff; margin-left: auto; }
+      .search-bar {
+        position: absolute;
+        top: 14px; left: 50%; transform: translateX(-50%);
+        z-index: 100;
+      }
+      .search-bar input {
+        width: 280px;
+        height: 36px;
+        padding: 0 12px;
+        border: 1px solid rgba(255,255,255,0.1);
+        border-radius: 4px;
+        background: rgba(10, 10, 10, 0.88);
+        color: #fff;
+        font-family: 'JetBrains Mono', monospace;
+        font-size: 12px;
+        backdrop-filter: blur(12px);
+        box-shadow: 0 4px 20px rgba(0,0,0,0.4);
+        outline: none;
+      }
+      .search-bar input::placeholder { color: rgba(255,255,255,0.4); }
+      .search-bar input:focus { border-color: rgba(255,255,255,0.3); }
+      #search-results {
+        position: absolute;
+        top: 40px; left: 0; width: 280px;
+        background: rgba(10, 10, 10, 0.94);
+        border-radius: 4px;
+        border: 1px solid rgba(255,255,255,0.1);
+        box-shadow: 0 4px 20px rgba(0,0,0,0.4);
+        display: none;
+        max-height: 200px;
+        overflow-y: auto;
+      }
+      #search-results.visible { display: block; }
+      #search-results .result {
+        padding: 8px 12px;
+        font-size: 11px;
+        font-family: 'JetBrains Mono', monospace;
+        color: rgba(255,255,255,0.8);
+        cursor: pointer;
+        border-bottom: 1px solid rgba(255,255,255,0.05);
+      }
+      #search-results .result:hover { background: rgba(255,255,255,0.08); }
+      #cesium-container { position: absolute; top: 0; left: 0; width: 100vw; height: 100vh; display: none; z-index: 0; }
+      #cesium-container canvas { outline: none; }
+      #cesium-container .cesium-viewer-toolbar {
+        top: 16px; left: 50%; transform: translateX(-50%);
+        right: auto;
+        display: flex; align-items: center; gap: 8px;
+        z-index: 101;
+        pointer-events: auto;
+      }
+      #cesium-container .cesium-viewer-toolbar button,
+      #cesium-container .cesium-button,
+      #cesium-container .cesium-geocoder-searchButton {
+        min-width: 40px; min-height: 40px;
+        border: 1px solid rgba(255,255,255,0.15);
+        border-radius: 8px;
+        background: rgba(20, 20, 20, 0.85);
+        color: #fff;
+        backdrop-filter: blur(8px);
+        box-shadow: 0 4px 16px rgba(0,0,0,0.3);
+      }
+      #cesium-container .cesium-geocoder-input {
+        height: 40px; padding-left: 44px;
+        border: 1px solid rgba(255,255,255,0.15);
+        border-radius: 8px;
+        background: rgba(20, 20, 20, 0.85);
+        color: #fff;
+        font-family: 'JetBrains Mono', monospace;
+        font-size: 13px;
+        backdrop-filter: blur(8px);
+        box-shadow: 0 4px 16px rgba(0,0,0,0.3);
+        pointer-events: auto;
+      }
+      #cesium-container .cesium-geocoder-input::placeholder { color: rgba(255,255,255,0.5); }
+      #cesium-container .cesium-navigation-help {
+        z-index: 101;
+      }
+      .view-toggle {
+        position: absolute;
+        top: 14px; right: 14px;
+        z-index: 100;
+        display: flex; gap: 0;
+        border-radius: 4px;
+        overflow: hidden;
+        box-shadow: 0 4px 20px rgba(0,0,0,0.4);
+        border: 1px solid rgba(255,255,255,0.1);
+      }
+      .view-toggle button {
+        padding: 8px 16px;
+        border: none;
+        background: rgba(10, 10, 10, 0.88);
+        color: rgba(255,255,255,0.5);
+        font-family: 'JetBrains Mono', monospace;
+        font-size: 12px;
+        font-weight: 600;
+        cursor: pointer;
+        backdrop-filter: blur(12px);
+        transition: all 0.15s;
+      }
+      .view-toggle button.active {
+        background: #fff;
+        color: #000;
+      }
+      .view-toggle button:hover:not(.active) {
+        color: rgba(255,255,255,0.8);
       }
     </style>
   </head>
   <body>
     <div id="map"></div>
+    <div id="cesium-container"></div>
+
+    <div class="view-toggle">
+      <button id="btn-2d" class="active">2D</button>
+      <button id="btn-3d">3D</button>
+    </div>
+
+    <div class="search-bar" id="search-bar">
+      <input type="text" id="search-input" placeholder="Search address..." />
+      <div id="search-results"></div>
+    </div>
 
     <div class="panel stats-panel">
-      <h2>KatastarEye</h2>
+      <h2>VANTIR</h2>
       <div class="row">
         <span class="dot" style="background:#64c864"></span>
-        Matched: <b id="stat-matched">-</b>
+        Registered <b id="stat-matched">-</b>
       </div>
       <div class="row">
         <span class="dot" style="background:#dc3232"></span>
-        Unregistered: <b id="stat-unregistered">-</b>
+        Unregistered <b id="stat-unregistered">-</b>
       </div>
       <div class="row">
         <span class="dot" style="background:#8b0000"></span>
-        On protected land: <b id="stat-protected">-</b>
+        Protected land <b id="stat-protected">-</b>
       </div>
       <div class="row">
         <span class="dot" style="background:#ffa500"></span>
-        Katastar only: <b id="stat-katastar">-</b>
+        Katastar only <b id="stat-katastar">-</b>
       </div>
-      <div class="row" style="margin-top:4px; padding-top:8px; border-top:1px solid rgba(0,0,0,0.1);">
-        Total buildings: <b id="stat-total">-</b>
+      <div class="row" style="margin-top:6px; padding-top:6px; border-top:1px solid rgba(255,255,255,0.1); color: rgba(255,255,255,0.6);">
+        Total <b id="stat-total" style="color: rgba(255,255,255,0.6);">-</b>
       </div>
     </div>
 
-    <div class="panel legend-panel">
-      <div><span class="dot" style="background:#64c864; width:10px; height:10px; display:inline-block; border-radius:2px;"></span> Registered (katastar + ML)</div>
-      <div><span class="dot" style="background:#dc3232; width:10px; height:10px; display:inline-block; border-radius:2px;"></span> Unregistered (ML only)</div>
-      <div><span class="dot" style="background:#8b0000; width:10px; height:10px; display:inline-block; border-radius:2px;"></span> On protected land (!)</div>
-      <div><span class="dot" style="background:#ffa500; width:10px; height:10px; display:inline-block; border-radius:2px;"></span> Katastar only (no ML match)</div>
-      <div style="margin-top:6px; padding-top:6px; border-top:1px solid rgba(0,0,0,0.1); font-size:11px; color:#888;">
-        Sources: MS Building Footprints, DGU INSPIRE,<br/>
-        OSS Katastar (parcel boundaries), DGU Land Use
-      </div>
-    </div>
 
     <script type="module" src="/src/main.js"></script>
   </body>

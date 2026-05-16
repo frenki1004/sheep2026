@@ -1,0 +1,25 @@
+{
+  "hash": "922913f3",
+  "configHash": "dc776c81",
+  "lockfileHash": "0a0b25cb",
+  "browserHash": "6f634d09",
+  "optimized": {
+    "maplibre-gl": {
+      "src": "../../node_modules/maplibre-gl/dist/maplibre-gl.js",
+      "file": "maplibre-gl.js",
+      "fileHash": "ed3fef5d",
+      "needsInterop": true
+    },
+    "cesium": {
+      "src": "../../node_modules/cesium/Source/Cesium.js",
+      "file": "cesium.js",
+      "fileHash": "d0e94e8f",
+      "needsInterop": false
+    }
+  },
+  "chunks": {
+    "chunk-KEXKKQVW": {
+      "file": "chunk-KEXKKQVW.js"
+    }
+  }
+}
