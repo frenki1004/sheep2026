@@ -4,7 +4,7 @@ Welcome to **Sheep AI 2026** — a hackathon project exploring AI-driven solutio
 
 ## About
 
-This repository hosts our entry for the Sheep AI 2026 Hackathon. The goal is to build something useful, creative, and a little bit weird at the intersection of AI and real-world problems within the hackathon timebox.
+This sitory hosts our entry for the Sheep AI 2026 Hackathon. The goal is to build something useful, creative, and a little bit weird at the intersection of AI and real-world problems within the hackathon timebox.
 
 ## Getting Started
 
