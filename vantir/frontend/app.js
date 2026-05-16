@@ -22,10 +22,7 @@ const SEARCH_RESULT_LIMIT = 12;
 const LOCAL_SEARCH_LIMIT = 8;
 const GOOGLE_SEARCH_LIMIT = 6;
 
-const searchParams = new URLSearchParams(window.location.search);
-const hashParams = new URLSearchParams(window.location.hash.slice(1));
-Cesium.Ion.defaultAccessToken =
-  searchParams.get("ionToken") || hashParams.get("ionToken") || window.CESIUM_ION_TOKEN || "";
+Cesium.Ion.defaultAccessToken = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJqdGkiOiI4MzBmYzI3My1hYjY4LTQ2M2EtOGJlMC05NmVjY2M5MzMxNWMiLCJpZCI6NDMyMzc5LCJzdWIiOiJNYXJ0aW5WcmJvdmNhbiIsImlzcyI6Imh0dHBzOi8vaW9uLmNlc2l1bS5jb20iLCJhdWQiOiJTaGVlcEFJIiwiaWF0IjoxNzc4OTUwOTg2fQ.UvKEfn5zoMIagOAxBu1SefvAt6iHwoRTi-nBgFK8qMY";
 
 const viewer = new Cesium.Viewer("cesiumContainer", {
   timeline: false,
