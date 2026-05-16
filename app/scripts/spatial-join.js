@@ -1,7 +1,7 @@
 import { readFileSync, writeFileSync } from "fs";
 
 const MS_PATH = "../public/data/buildings_ms.geojson";
-const DGU_PATH = "../public/data/buildings_dgu.geojson"; // DGU INSPIRE (2016)
+const DGU_PATH = "../public/data/buildings_oss.geojson"; // Live OSS katastar (2026)
 const OUT_PATH = "../public/data/buildings.geojson";
 
 const BBOX = { minLon: 16.41, maxLon: 16.49, minLat: 43.495, maxLat: 43.545 };
@@ -245,32 +245,102 @@ for (let j = 0; j < dguData.length; j++) {
 }
 console.log(`  Pass 2 (DGU centroid in MS poly): ${pass2}`);
 
-// Pass 3: proximity fallback — close centroids with reasonable area ratio
+// Pass 3: proximity fallback — generous radius
 let pass3 = 0;
 for (let i = 0; i < msData.length; i++) {
   if (msMatchedTo[i] >= 0) continue;
   const pt = msData[i].centroid;
   const cx = Math.floor(pt[0] / CELL), cy = Math.floor(pt[1] / CELL);
-  let bestScore = 0, bestJ = -1;
+  let bestDist = 25, bestJ = -1;
   for (let dx = -1; dx <= 1; dx++) for (let dy = -1; dy <= 1; dy++) {
     const bucket = dguCentroidGrid[`${cx+dx},${cy+dy}`];
     if (!bucket) continue;
     for (const j of bucket) {
       const dist = distM(pt, dguData[j].centroid);
-      if (dist > 15) continue;
-      const areaRatio = Math.min(msData[i].area, dguData[j].area) / Math.max(msData[i].area, dguData[j].area);
-      if (areaRatio < 0.25) continue;
-      const score = (1 - dist / 15) * 0.5 + areaRatio * 0.5;
-      if (score > bestScore) { bestScore = score; bestJ = j; }
+      if (dist < bestDist) { bestDist = dist; bestJ = j; }
     }
   }
-  if (bestJ >= 0 && bestScore > 0.3) {
+  if (bestJ >= 0) {
     msMatchedTo[i] = bestJ;
     dguMatchedBy[bestJ] = i;
     pass3++;
   }
 }
-console.log(`  Pass 3 (proximity fallback): ${pass3}`);
+console.log(`  Pass 3 (proximity <25m): ${pass3}`);
+
+// Pass 4: Check MS polygon VERTICES inside OSS polygons (catches edge cases where centroid is outside)
+let pass4 = 0;
+function getVertices(geometry) {
+  const ring = geometry.type === "MultiPolygon" ? geometry.coordinates[0][0] : geometry.coordinates[0];
+  return ring;
+}
+for (let i = 0; i < msData.length; i++) {
+  if (msMatchedTo[i] >= 0) continue;
+  const verts = getVertices(msData[i].feature.geometry);
+  let matched = false;
+  for (const v of verts) {
+    if (matched) break;
+    const candidates = queryCandidates(v, dguBboxGrid, CELL);
+    for (const j of candidates) {
+      const bb = dguData[j].bbox;
+      if (v[0] < bb.minX || v[0] > bb.maxX || v[1] < bb.minY || v[1] > bb.maxY) continue;
+      if (pointInPolygon(v, dguData[j].feature.geometry)) {
+        msMatchedTo[i] = j;
+        dguMatchedBy[j] = i;
+        pass4++;
+        matched = true;
+        break;
+      }
+    }
+  }
+}
+console.log(`  Pass 4 (MS vertex in OSS poly): ${pass4}`);
+
+// Pass 5: Check if any OSS vertex falls inside MS polygon
+let pass5 = 0;
+for (let i = 0; i < msData.length; i++) {
+  if (msMatchedTo[i] >= 0) continue;
+  const msBb = bboxBuffer(msData[i].bbox, BUFFER_DEG);
+  const candidates = queryCandidates(msData[i].centroid, dguBboxGrid, CELL);
+  for (const j of candidates) {
+    const verts = getVertices(dguData[j].feature.geometry);
+    let found = false;
+    for (const v of verts) {
+      if (v[0] < msBb.minX || v[0] > msBb.maxX || v[1] < msBb.minY || v[1] > msBb.maxY) continue;
+      if (pointInPolygon(v, msData[i].feature.geometry)) {
+        msMatchedTo[i] = j;
+        dguMatchedBy[j] = i;
+        pass5++;
+        found = true;
+        break;
+      }
+    }
+    if (found) break;
+  }
+}
+console.log(`  Pass 5 (OSS vertex in MS poly): ${pass5}`);
+
+// Pass 6: bbox overlap >20% of smaller
+let pass6 = 0;
+for (let i = 0; i < msData.length; i++) {
+  if (msMatchedTo[i] >= 0) continue;
+  const msBb = msData[i].bbox;
+  const candidates = queryCandidates(msData[i].centroid, dguBboxGrid, CELL);
+  for (const j of candidates) {
+    if (!bboxIntersects(msBb, dguData[j].bbox)) continue;
+    const ix = Math.max(0, Math.min(msBb.maxX, dguData[j].bbox.maxX) - Math.max(msBb.minX, dguData[j].bbox.minX));
+    const iy = Math.max(0, Math.min(msBb.maxY, dguData[j].bbox.maxY) - Math.max(msBb.minY, dguData[j].bbox.minY));
+    const overlap = ix * iy;
+    const smaller = Math.min(bboxArea(msBb), bboxArea(dguData[j].bbox));
+    if (smaller > 0 && overlap / smaller > 0.2) {
+      msMatchedTo[i] = j;
+      dguMatchedBy[j] = i;
+      pass6++;
+      break;
+    }
+  }
+}
+console.log(`  Pass 6 (bbox overlap >20%): ${pass6}`);
 
 // --- Land use cross-reference ---
 console.log("\nCross-referencing with land use...");
@@ -284,6 +354,7 @@ for (const f of landuse.features) {
 const luGrid = buildBboxGrid(luData.map(d => ({ bbox: d.bbox })), CELL);
 
 const PROTECTED_ZONES = new Set(["Vinograd", "Maslinik", "Oranica", "Crnogorica", "Rasadnik", "Kamenjar", "Park", "TravnatePovrsine"]);
+const LEGITIMATE_ZONES = new Set(["SportskoIgraliste", "GospodarskePovrsine", "PovrsineTrajnijegKaraktera", "PovrsinaCeste", "Parkiraliste", "Dvoriste"]);
 
 function getLandUse(pt) {
   const candidates = queryCandidates(pt, luGrid, CELL);
@@ -307,7 +378,10 @@ for (let i = 0; i < msData.length; i++) {
 
   const landZone = getLandUse(d.centroid);
   const onProtectedLand = status === "unregistered" && landZone && PROTECTED_ZONES.has(landZone);
+  const onLegitimateLand = status === "unregistered" && landZone && LEGITIMATE_ZONES.has(landZone);
   if (onProtectedLand) onProtected++;
+  // Buildings on sports fields, economic zones, parking, courtyards → likely legitimate
+  if (onLegitimateLand) status = "matched";
 
   outputFeatures.push({
     type: "Feature",
@@ -323,9 +397,30 @@ for (let i = 0; i < msData.length; i++) {
   });
 }
 
+// For "katastar only" — check if the OSS building is actually inside an MS blob
+// (MS merges adjacent buildings into one polygon)
+const MIN_KATASTAR_AREA = 50;
+let coveredByMs = 0;
 for (let j = 0; j < dguData.length; j++) {
   if (dguMatchedBy[j] >= 0) continue;
   const d = dguData[j];
+  if (d.area < MIN_KATASTAR_AREA) continue;
+
+  // Check if this OSS building's centroid is inside any MS polygon
+  const pt = d.centroid;
+  const candidates = queryCandidates(pt, msBboxGrid, CELL);
+  let insideMs = false;
+  for (const i of candidates) {
+    const bb = bboxBuffer(msData[i].bbox, BUFFER_DEG);
+    if (pt[0] < bb.minX || pt[0] > bb.maxX || pt[1] < bb.minY || pt[1] > bb.maxY) continue;
+    if (pointInPolygon(pt, msData[i].feature.geometry)) {
+      insideMs = true;
+      coveredByMs++;
+      break;
+    }
+  }
+  if (insideMs) continue; // It's covered by an MS blob, not truly "katastar only"
+
   outputFeatures.push({
     type: "Feature",
     properties: {
@@ -333,12 +428,13 @@ for (let j = 0; j < dguData.length; j++) {
       height: 8,
       area_m2: Math.round(d.area),
       confidence: 0,
-      source: "dgu",
-      building_nature: d.feature.properties.building_nature || null,
+      source: "oss",
+      building_type: d.feature.properties.building_type || null,
     },
     geometry: d.feature.geometry,
   });
 }
+console.log(`  OSS buildings covered by MS blobs (not truly katastar-only): ${coveredByMs}`);
 
 const output = { type: "FeatureCollection", features: outputFeatures };
 const counts = { matched: 0, unregistered: 0, illegal_protected: 0, katastarOnly: 0 };
