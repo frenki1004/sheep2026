@@ -18,7 +18,7 @@ const outlineByStatus = {
 };
 
 export async function init3D(container) {
-  Cesium.Ion.defaultAccessToken = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJqdGkiOiJmODEyNGNhNS05YWZhLTQ0YTYtODYzMi1hOTFmNDVmMTFmZjAiLCJpZCI6NDMyMzc5LCJpc3MiOiJodHRwczovL2lvbi5jZXNpdW0uY29tIiwiYXVkIjoidW5kZWZpbmVkX2RlZmF1bHQiLCJpYXQiOjE3Nzg5NDE2MzZ9.lztx8GVGCCASBbzmwmHB3LOsrxD3c3p6wlWB1DJteec";
+  Cesium.Ion.defaultAccessToken = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJqdGkiOiI4MzBmYzI3My1hYjY4LTQ2M2EtOGJlMC05NmVjY2M5MzMxNWMiLCJpZCI6NDMyMzc5LCJzdWIiOiJNYXJ0aW5WcmJvdmNhbiIsImlzcyI6Imh0dHBzOi8vaW9uLmNlc2l1bS5jb20iLCJhdWQiOiJTaGVlcEFJIiwiaWF0IjoxNzc4OTUwOTg2fQ.UvKEfn5zoMIagOAxBu1SefvAt6iHwoRTi-nBgFK8qMY";
 
   viewer = new Cesium.Viewer(container, {
     terrain: Cesium.Terrain.fromWorldTerrain(),
