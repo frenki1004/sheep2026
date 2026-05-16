@@ -1,0 +1,573 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Split 3D Viewer</title>
+    <link
+      rel="stylesheet"
+      href="https://cesium.com/downloads/cesiumjs/releases/1.141/Build/Cesium/Widgets/widgets.css"
+    >
+    <style>
+      :root {
+        color-scheme: dark;
+        --panel: rgba(12, 20, 24, 0.78);
+        --panel-strong: rgba(9, 14, 17, 0.92);
+        --line: rgba(255, 255, 255, 0.18);
+        --text: #f7fbfc;
+        --muted: rgba(247, 251, 252, 0.72);
+        --accent: #58d3c7;
+        --accent-strong: #78f0d6;
+        --danger: #ffb199;
+      }
+
+      html,
+      body,
+      #cesiumContainer {
+        width: 100%;
+        height: 100%;
+        margin: 0;
+        overflow: hidden;
+      }
+
+      body {
+        background: #071014;
+        font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      }
+
+      *,
+      *::before,
+      *::after {
+        box-sizing: border-box;
+      }
+
+      button,
+      input {
+        font: inherit;
+      }
+
+      .topbar {
+        position: fixed;
+        top: 14px;
+        left: 14px;
+        right: 14px;
+        z-index: 2;
+        display: flex;
+        align-items: flex-start;
+        justify-content: space-between;
+        gap: 12px;
+        pointer-events: none;
+      }
+
+      .title-panel,
+      .actions,
+      .status,
+      .token-panel {
+        border: 1px solid var(--line);
+        background: var(--panel);
+        box-shadow: 0 18px 48px rgba(0, 0, 0, 0.26);
+        backdrop-filter: blur(18px);
+      }
+
+      .title-panel {
+        max-width: min(420px, calc(100vw - 28px));
+        border-radius: 8px;
+        color: var(--text);
+        padding: 14px 16px 15px;
+      }
+
+      h1 {
+        margin: 0;
+        font-size: clamp(21px, 3vw, 34px);
+        line-height: 1.05;
+        font-weight: 760;
+        letter-spacing: 0;
+      }
+
+      .subtitle {
+        margin: 7px 0 0;
+        color: var(--muted);
+        font-size: 13px;
+        line-height: 1.45;
+        letter-spacing: 0;
+      }
+
+      .actions {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        border-radius: 8px;
+        padding: 7px;
+        pointer-events: auto;
+      }
+
+      .button,
+      .chip {
+        appearance: none;
+        border: 1px solid rgba(255, 255, 255, 0.17);
+        border-radius: 8px;
+        background: rgba(255, 255, 255, 0.08);
+        color: var(--text);
+        cursor: pointer;
+        font-size: 13px;
+        font-weight: 700;
+        line-height: 1;
+        letter-spacing: 0;
+        min-height: 36px;
+        padding: 0 12px;
+      }
+
+      .button:hover,
+      .chip:hover {
+        border-color: rgba(120, 240, 214, 0.45);
+        background: rgba(120, 240, 214, 0.13);
+      }
+
+      .button:focus-visible,
+      .chip:focus-visible,
+      input:focus-visible {
+        outline: 3px solid rgba(88, 211, 199, 0.36);
+        outline-offset: 2px;
+      }
+
+      .button.primary {
+        border-color: rgba(120, 240, 214, 0.48);
+        background: rgba(88, 211, 199, 0.18);
+        color: #eafffb;
+      }
+
+      .places {
+        position: fixed;
+        left: 14px;
+        bottom: 24px;
+        z-index: 2;
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+        pointer-events: auto;
+      }
+
+      .chip {
+        background: var(--panel);
+        box-shadow: 0 12px 34px rgba(0, 0, 0, 0.22);
+      }
+
+      .status {
+        position: fixed;
+        right: 14px;
+        bottom: 24px;
+        z-index: 2;
+        max-width: min(380px, calc(100vw - 28px));
+        border-radius: 8px;
+        color: var(--muted);
+        font-size: 13px;
+        font-weight: 650;
+        line-height: 1.4;
+        padding: 11px 13px;
+        pointer-events: none;
+      }
+
+      .status.error {
+        color: var(--danger);
+      }
+
+      .token-panel {
+        position: fixed;
+        inset: 50%;
+        z-index: 4;
+        width: min(480px, calc(100vw - 28px));
+        border-radius: 8px;
+        color: var(--text);
+        padding: 18px;
+        transform: translate(-50%, -50%);
+      }
+
+      .token-panel[hidden],
+      .backdrop[hidden] {
+        display: none;
+      }
+
+      .token-panel h2 {
+        margin: 0;
+        font-size: 20px;
+        line-height: 1.15;
+        letter-spacing: 0;
+      }
+
+      .token-panel p {
+        margin: 9px 0 15px;
+        color: var(--muted);
+        font-size: 13px;
+        line-height: 1.45;
+      }
+
+      .token-form {
+        display: grid;
+        gap: 10px;
+      }
+
+      .token-form input {
+        width: 100%;
+        min-height: 42px;
+        border: 1px solid rgba(255, 255, 255, 0.22);
+        border-radius: 8px;
+        background: rgba(255, 255, 255, 0.08);
+        color: var(--text);
+        padding: 0 12px;
+      }
+
+      .token-form input::placeholder {
+        color: rgba(247, 251, 252, 0.42);
+      }
+
+      .token-actions {
+        display: flex;
+        justify-content: flex-end;
+        gap: 8px;
+      }
+
+      .backdrop {
+        position: fixed;
+        inset: 0;
+        z-index: 3;
+        background: rgba(0, 0, 0, 0.42);
+        backdrop-filter: blur(3px);
+      }
+
+      .cesium-viewer-toolbar {
+        top: 84px;
+        right: 14px;
+      }
+
+      .cesium-geocoder-searchButton {
+        border-radius: 0 6px 6px 0;
+      }
+
+      .cesium-geocoder-input {
+        border-radius: 6px 0 0 6px;
+      }
+
+      @media (max-width: 760px) {
+        .topbar {
+          flex-direction: column;
+          align-items: stretch;
+        }
+
+        .actions {
+          align-self: flex-end;
+        }
+
+        .title-panel {
+          padding: 12px 13px;
+        }
+
+        .subtitle {
+          font-size: 12px;
+        }
+
+        .places {
+          right: 14px;
+          bottom: 76px;
+        }
+
+        .status {
+          left: 14px;
+          right: 14px;
+          bottom: 14px;
+          max-width: none;
+        }
+      }
+    </style>
+    <script>
+      window.CESIUM_BASE_URL = "https://cesium.com/downloads/cesiumjs/releases/1.141/Build/Cesium/";
+    </script>
+  </head>
+  <body>
+    <div id="cesiumContainer"></div>
+
+    <div class="topbar">
+      <section class="title-panel" aria-label="Viewer title">
+        <h1>Split, Croatia</h1>
+        <p class="subtitle">Photorealistic 3D Tiles centered on the Riva, Diocletian's Palace, and the Marjan peninsula.</p>
+      </section>
+
+      <nav class="actions" aria-label="Viewer actions">
+        <button class="button primary" type="button" data-view="oldTown">Reset</button>
+        <button class="button" type="button" data-token-open>Ion token</button>
+      </nav>
+    </div>
+
+    <nav class="places" aria-label="Split viewpoints">
+      <button class="chip" type="button" data-view="oldTown">Old Town</button>
+      <button class="chip" type="button" data-view="riva">Riva</button>
+      <button class="chip" type="button" data-view="marjan">Marjan</button>
+      <button class="chip" type="button" data-view="bacvice">Bacvice</button>
+    </nav>
+
+    <div class="status" data-status>Loading Split viewer...</div>
+
+    <div class="backdrop" data-token-backdrop hidden></div>
+    <section class="token-panel" data-token-panel hidden aria-label="Cesium ion token">
+      <h2>Cesium ion token</h2>
+      <p>Google Photorealistic 3D Tiles require a Cesium ion access token with geocode permissions. The token is stored only in this browser.</p>
+      <form class="token-form" data-token-form>
+        <input data-token-input type="password" autocomplete="off" spellcheck="false" placeholder="Paste Cesium ion token">
+        <div class="token-actions">
+          <button class="button" type="button" data-token-close>Cancel</button>
+          <button class="button primary" type="submit">Save and load</button>
+        </div>
+      </form>
+    </section>
+
+    <script type="module">
+      import * as Cesium from "https://cesium.com/downloads/cesiumjs/releases/1.141/Build/Cesium/index.js";
+
+      const TOKEN_STORAGE_KEY = "split-viewer.cesiumIonToken";
+      const statusEl = document.querySelector("[data-status]");
+      const tokenPanel = document.querySelector("[data-token-panel]");
+      const tokenBackdrop = document.querySelector("[data-token-backdrop]");
+      const tokenInput = document.querySelector("[data-token-input]");
+      const tokenForm = document.querySelector("[data-token-form]");
+
+      const splitViews = {
+        oldTown: {
+          label: "Old Town",
+          longitude: 16.4402,
+          latitude: 43.5081,
+          height: 35,
+          heading: 130,
+          pitch: -33,
+          range: 1120
+        },
+        riva: {
+          label: "Riva",
+          longitude: 16.4385,
+          latitude: 43.5070,
+          height: 20,
+          heading: 75,
+          pitch: -27,
+          range: 650
+        },
+        marjan: {
+          label: "Marjan",
+          longitude: 16.4151,
+          latitude: 43.5117,
+          height: 140,
+          heading: 98,
+          pitch: -29,
+          range: 1500
+        },
+        bacvice: {
+          label: "Bacvice",
+          longitude: 16.4541,
+          latitude: 43.5035,
+          height: 35,
+          heading: 318,
+          pitch: -26,
+          range: 820
+        }
+      };
+
+      const markers = [
+        { name: "Diocletian's Palace", longitude: 16.4402, latitude: 43.5081, height: 70 },
+        { name: "Riva", longitude: 16.4385, latitude: 43.5070, height: 58 },
+        { name: "Marjan", longitude: 16.4151, latitude: 43.5117, height: 170 },
+        { name: "Bacvice", longitude: 16.4541, latitude: 43.5035, height: 55 }
+      ];
+
+      let viewer = null;
+      let tileset = null;
+
+      function setStatus(message, isError = false) {
+        statusEl.textContent = message;
+        statusEl.classList.toggle("error", isError);
+      }
+
+      function getStoredToken() {
+        try {
+          return window.localStorage.getItem(TOKEN_STORAGE_KEY) || "";
+        } catch (error) {
+          return "";
+        }
+      }
+
+      function setStoredToken(token) {
+        try {
+          window.localStorage.setItem(TOKEN_STORAGE_KEY, token);
+        } catch (error) {
+          setStatus("Token storage is unavailable in this browser.", true);
+        }
+      }
+
+      function readTokenFromQuery() {
+        const url = new URL(window.location.href);
+        const token = url.searchParams.get("ionToken");
+
+        if (!token) {
+          return "";
+        }
+
+        setStoredToken(token);
+        url.searchParams.delete("ionToken");
+
+        try {
+          window.history.replaceState({}, "", `${url.pathname}${url.search}${url.hash}`);
+        } catch (error) {
+          // File URLs may reject history updates; the token is still usable.
+        }
+
+        return token;
+      }
+
+      function openTokenPanel() {
+        tokenInput.value = getStoredToken();
+        tokenPanel.hidden = false;
+        tokenBackdrop.hidden = false;
+        tokenInput.focus();
+      }
+
+      function closeTokenPanel() {
+        tokenPanel.hidden = true;
+        tokenBackdrop.hidden = true;
+      }
+
+      function cameraOffset(view) {
+        return new Cesium.HeadingPitchRange(
+          Cesium.Math.toRadians(view.heading),
+          Cesium.Math.toRadians(view.pitch),
+          view.range
+        );
+      }
+
+      function targetFor(view) {
+        return Cesium.Cartesian3.fromDegrees(view.longitude, view.latitude, view.height);
+      }
+
+      function setInitialView(view) {
+        viewer.camera.lookAt(targetFor(view), cameraOffset(view));
+        viewer.camera.lookAtTransform(Cesium.Matrix4.IDENTITY);
+      }
+
+      function flyToView(viewKey, duration = 1.6) {
+        if (!viewer || !splitViews[viewKey]) {
+          return;
+        }
+
+        const view = splitViews[viewKey];
+        viewer.camera.flyToBoundingSphere(new Cesium.BoundingSphere(targetFor(view), 60), {
+          duration,
+          offset: cameraOffset(view),
+          complete: () => viewer.camera.lookAtTransform(Cesium.Matrix4.IDENTITY)
+        });
+      }
+
+      function addMarker(marker) {
+        viewer.entities.add({
+          position: Cesium.Cartesian3.fromDegrees(marker.longitude, marker.latitude, marker.height),
+          point: {
+            pixelSize: 8,
+            color: Cesium.Color.fromCssColorString("#58d3c7"),
+            outlineColor: Cesium.Color.fromCssColorString("#071014"),
+            outlineWidth: 2,
+            disableDepthTestDistance: Number.POSITIVE_INFINITY
+          },
+          label: {
+            text: marker.name,
+            font: "700 14px Inter, sans-serif",
+            fillColor: Cesium.Color.WHITE,
+            outlineColor: Cesium.Color.fromCssColorString("#071014"),
+            outlineWidth: 4,
+            style: Cesium.LabelStyle.FILL_AND_OUTLINE,
+            pixelOffset: new Cesium.Cartesian2(0, -22),
+            disableDepthTestDistance: Number.POSITIVE_INFINITY
+          }
+        });
+      }
+
+      async function loadPhotorealisticTiles() {
+        setStatus("Streaming Google Photorealistic 3D Tiles for Split...");
+
+        try {
+          tileset = await Cesium.createGooglePhotorealistic3DTileset({
+            onlyUsingWithGoogleGeocoder: true
+          });
+          viewer.scene.primitives.add(tileset);
+          setStatus("Split 3D Tiles are streaming.");
+        } catch (error) {
+          console.error("Error loading Photorealistic 3D Tiles tileset.", error);
+          setStatus("Unable to load Google Photorealistic 3D Tiles. Check the Cesium ion token and enabled Google tiles access.", true);
+          openTokenPanel();
+        }
+      }
+
+      function createViewer(token) {
+        Cesium.Ion.defaultAccessToken = token;
+
+        viewer = new Cesium.Viewer("cesiumContainer", {
+          timeline: false,
+          animation: false,
+          sceneModePicker: false,
+          baseLayerPicker: false,
+          homeButton: false,
+          navigationHelpButton: false,
+          fullscreenButton: false,
+          infoBox: false,
+          selectionIndicator: false,
+          geocoder: Cesium.IonGeocodeProviderType.GOOGLE,
+          globe: false
+        });
+
+        viewer.scene.skyAtmosphere.show = true;
+        viewer.scene.highDynamicRange = true;
+        viewer.scene.screenSpaceCameraController.minimumZoomDistance = 25;
+        viewer.scene.screenSpaceCameraController.maximumZoomDistance = 12000;
+        viewer.scene.screenSpaceCameraController.enableCollisionDetection = true;
+
+        setInitialView(splitViews.oldTown);
+        markers.forEach(addMarker);
+        loadPhotorealisticTiles();
+      }
+
+      function boot() {
+        const token = readTokenFromQuery() || getStoredToken();
+
+        if (!token) {
+          setStatus("Add a Cesium ion token to load Google Photorealistic 3D Tiles.", true);
+          openTokenPanel();
+          return;
+        }
+
+        createViewer(token);
+      }
+
+      document.querySelectorAll("[data-view]").forEach((button) => {
+        button.addEventListener("click", () => flyToView(button.dataset.view));
+      });
+
+      document.querySelector("[data-token-open]").addEventListener("click", openTokenPanel);
+      document.querySelector("[data-token-close]").addEventListener("click", closeTokenPanel);
+      tokenBackdrop.addEventListener("click", closeTokenPanel);
+
+      tokenForm.addEventListener("submit", (event) => {
+        event.preventDefault();
+        const token = tokenInput.value.trim();
+
+        if (!token) {
+          setStatus("Paste a Cesium ion token before loading the viewer.", true);
+          return;
+        }
+
+        setStoredToken(token);
+        closeTokenPanel();
+
+        if (viewer) {
+          window.location.reload();
+        } else {
+          createViewer(token);
+        }
+      });
+
+      boot();
+    </script>
+  </body>
+</html>
