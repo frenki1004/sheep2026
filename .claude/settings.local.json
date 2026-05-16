@@ -1,0 +1,12 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(dir C:\\\\Users\\\\Krešimir\\\\Desktop\\\\sheep26\\\\sheep2026 *)",
+      "Bash(copy *)",
+      "Bash(dir C:\\\\Users\\\\Krešimir\\\\Desktop\\\\sheep26\\\\sheep2026\\\\src *)",
+      "Bash(dir \"C:\\\\Users\\\\Krešimir\\\\Desktop\\\\sheep26\\\\sheep2026\")",
+      "Bash(npm install *)",
+      "WebSearch"
+    ]
+  }
+}
