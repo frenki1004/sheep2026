@@ -1,0 +1,17 @@
+{
+  "name": "katastar-eye",
+  "private": true,
+  "version": "0.0.1",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview"
+  },
+  "dependencies": {
+    "maplibre-gl": "5.24.0"
+  },
+  "devDependencies": {
+    "vite": "6.3.5"
+  }
+}

@@ -1,0 +1,79 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>KatastarEye — Split Building Discrepancy Viewer</title>
+    <style>
+      * { margin: 0; padding: 0; box-sizing: border-box; }
+      body { overflow: hidden; font-family: 'Inter', system-ui, sans-serif; }
+      #map { position: absolute; top: 0; left: 0; width: 100vw; height: 100vh; }
+      .panel {
+        position: absolute;
+        background: rgba(255, 255, 255, 0.94);
+        color: #1a1a1a;
+        border-radius: 10px;
+        font-family: 'JetBrains Mono', monospace;
+        backdrop-filter: blur(8px);
+        border: 1px solid rgba(0,0,0,0.08);
+        box-shadow: 0 2px 12px rgba(0,0,0,0.1);
+      }
+      .stats-panel {
+        top: 16px; left: 16px;
+        padding: 18px 22px;
+        font-size: 14px;
+        min-width: 230px;
+      }
+      .stats-panel h2 { margin: 0 0 14px; font-size: 20px; letter-spacing: -0.5px; }
+      .stats-panel .row { margin-bottom: 8px; display: flex; align-items: center; gap: 8px; }
+      .stats-panel .dot { width: 12px; height: 12px; border-radius: 3px; display: inline-block; }
+      .stats-panel b { font-variant-numeric: tabular-nums; }
+      .legend-panel {
+        bottom: 16px; right: 16px;
+        padding: 14px 18px;
+        font-size: 12px;
+        line-height: 1.8;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="map"></div>
+
+    <div class="panel stats-panel">
+      <h2>KatastarEye</h2>
+      <div class="row">
+        <span class="dot" style="background:#64c864"></span>
+        Matched: <b id="stat-matched">-</b>
+      </div>
+      <div class="row">
+        <span class="dot" style="background:#dc3232"></span>
+        Unregistered: <b id="stat-unregistered">-</b>
+      </div>
+      <div class="row">
+        <span class="dot" style="background:#8b0000"></span>
+        On protected land: <b id="stat-protected">-</b>
+      </div>
+      <div class="row">
+        <span class="dot" style="background:#ffa500"></span>
+        Katastar only: <b id="stat-katastar">-</b>
+      </div>
+      <div class="row" style="margin-top:4px; padding-top:8px; border-top:1px solid rgba(0,0,0,0.1);">
+        Total buildings: <b id="stat-total">-</b>
+      </div>
+    </div>
+
+    <div class="panel legend-panel">
+      <div><span class="dot" style="background:#64c864; width:10px; height:10px; display:inline-block; border-radius:2px;"></span> Registered (katastar + ML)</div>
+      <div><span class="dot" style="background:#dc3232; width:10px; height:10px; display:inline-block; border-radius:2px;"></span> Unregistered (ML only)</div>
+      <div><span class="dot" style="background:#8b0000; width:10px; height:10px; display:inline-block; border-radius:2px;"></span> On protected land (!)</div>
+      <div><span class="dot" style="background:#ffa500; width:10px; height:10px; display:inline-block; border-radius:2px;"></span> Katastar only (no ML match)</div>
+      <div style="margin-top:6px; padding-top:6px; border-top:1px solid rgba(0,0,0,0.1); font-size:11px; color:#888;">
+        Sources: MS Building Footprints, DGU INSPIRE,<br/>
+        OSS Katastar (parcel boundaries), DGU Land Use
+      </div>
+    </div>
+
+    <script type="module" src="/src/main.js"></script>
+  </body>
+</html>
