@@ -71,19 +71,20 @@ map.on("load", async () => {
     id: "landuse-fill",
     type: "fill",
     source: "landuse",
+    filter: ["!", ["in", ["get", "land_type"], ["literal", ["Dvoriste", "PovrsineTrajnijegKaraktera", "PovrsinaCeste", "Parkiraliste", "GospodarskePovrsine"]]]],
     paint: {
       "fill-color": [
         "match", ["get", "land_type"],
-        "Vinograd", "rgba(128, 0, 128, 0.35)",
-        "Maslinik", "rgba(107, 142, 35, 0.35)",
-        "Oranica", "rgba(210, 180, 60, 0.3)",
-        "Vrt", "rgba(144, 238, 144, 0.25)",
-        "Park", "rgba(34, 139, 34, 0.35)",
-        "Crnogorica", "rgba(0, 100, 0, 0.35)",
-        "TravnatePovrsine", "rgba(124, 252, 0, 0.2)",
-        "SportskoIgraliste", "rgba(0, 191, 255, 0.25)",
-        "Kamenjar", "rgba(160, 160, 160, 0.25)",
-        "Rasadnik", "rgba(50, 205, 50, 0.3)",
+        "Vinograd", "rgba(128, 0, 128, 0.4)",
+        "Maslinik", "rgba(107, 142, 35, 0.4)",
+        "Oranica", "rgba(210, 180, 60, 0.35)",
+        "Vrt", "rgba(144, 238, 144, 0.3)",
+        "Park", "rgba(34, 139, 34, 0.4)",
+        "Crnogorica", "rgba(0, 100, 0, 0.4)",
+        "TravnatePovrsine", "rgba(124, 252, 0, 0.25)",
+        "SportskoIgraliste", "rgba(0, 191, 255, 0.3)",
+        "Kamenjar", "rgba(160, 160, 160, 0.3)",
+        "Rasadnik", "rgba(50, 205, 50, 0.35)",
         "rgba(0, 0, 0, 0)",
       ],
       "fill-opacity": 0.6,
@@ -93,8 +94,9 @@ map.on("load", async () => {
     id: "landuse-outline",
     type: "line",
     source: "landuse",
+    filter: ["!", ["in", ["get", "land_type"], ["literal", ["Dvoriste", "PovrsineTrajnijegKaraktera", "PovrsinaCeste", "Parkiraliste", "GospodarskePovrsine"]]]],
     paint: {
-      "line-color": "rgba(255, 255, 255, 0.8)",
+      "line-color": "rgba(255, 255, 255, 0.85)",
       "line-width": 1.5,
     },
   });
@@ -102,6 +104,7 @@ map.on("load", async () => {
     id: "landuse-labels",
     type: "symbol",
     source: "landuse",
+    filter: ["!", ["in", ["get", "land_type"], ["literal", ["Dvoriste", "PovrsineTrajnijegKaraktera", "PovrsinaCeste", "Parkiraliste", "GospodarskePovrsine", "Raskrizje"]]]],
     layout: {
       "text-field": ["get", "land_type"],
       "text-size": 11,
@@ -154,6 +157,8 @@ map.on("load", async () => {
   map.on("click", "landuse-fill", (e) => {
     if (e.defaultPrevented) return;
     const p = e.features[0].properties;
+    const skip = ["Dvoriste", "PovrsineTrajnijegKaraktera", "PovrsinaCeste", "Parkiraliste", "GospodarskePovrsine"];
+    if (skip.includes(p.land_type)) return;
     const html = `<b>Land use:</b> ${p.land_type}<br/><b>Observed:</b> ${p.observation_date || "N/A"}`;
     new Popup({ offset: 15 }).setLngLat(e.lngLat).setHTML(html).addTo(map);
   });

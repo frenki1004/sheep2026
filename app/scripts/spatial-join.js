@@ -4,7 +4,7 @@ const MS_PATH = "../public/data/buildings_ms.geojson";
 const DGU_PATH = "../public/data/buildings_oss.geojson"; // Live OSS katastar (2026)
 const OUT_PATH = "../public/data/buildings.geojson";
 
-const BBOX = { minLon: 16.41, maxLon: 16.49, minLat: 43.495, maxLat: 43.545 };
+const BBOX = { minLon: 16.41, maxLon: 16.55, minLat: 43.49, maxLat: 43.55 };
 
 // --- Geometry utilities ---
 
@@ -245,28 +245,33 @@ for (let j = 0; j < dguData.length; j++) {
 }
 console.log(`  Pass 2 (DGU centroid in MS poly): ${pass2}`);
 
-// Pass 3: proximity fallback — generous radius
+// Pass 3: proximity fallback — require reasonable area similarity to avoid matching to wrong neighbor
 let pass3 = 0;
 for (let i = 0; i < msData.length; i++) {
   if (msMatchedTo[i] >= 0) continue;
   const pt = msData[i].centroid;
+  const msArea = msData[i].area;
   const cx = Math.floor(pt[0] / CELL), cy = Math.floor(pt[1] / CELL);
-  let bestDist = 25, bestJ = -1;
+  let bestScore = 0, bestJ = -1;
   for (let dx = -1; dx <= 1; dx++) for (let dy = -1; dy <= 1; dy++) {
     const bucket = dguCentroidGrid[`${cx+dx},${cy+dy}`];
     if (!bucket) continue;
     for (const j of bucket) {
       const dist = distM(pt, dguData[j].centroid);
-      if (dist < bestDist) { bestDist = dist; bestJ = j; }
+      if (dist > 20) continue;
+      const areaRatio = Math.min(msArea, dguData[j].area) / Math.max(msArea, dguData[j].area);
+      if (areaRatio < 0.2) continue; // skip if areas differ >5x
+      const score = (1 - dist/20) * 0.6 + areaRatio * 0.4;
+      if (score > bestScore) { bestScore = score; bestJ = j; }
     }
   }
-  if (bestJ >= 0) {
+  if (bestJ >= 0 && bestScore > 0.3) {
     msMatchedTo[i] = bestJ;
     dguMatchedBy[bestJ] = i;
     pass3++;
   }
 }
-console.log(`  Pass 3 (proximity <25m): ${pass3}`);
+console.log(`  Pass 3 (proximity+area): ${pass3}`);
 
 // Pass 4: Check MS polygon VERTICES inside OSS polygons (catches edge cases where centroid is outside)
 let pass4 = 0;
@@ -354,7 +359,7 @@ for (const f of landuse.features) {
 const luGrid = buildBboxGrid(luData.map(d => ({ bbox: d.bbox })), CELL);
 
 const PROTECTED_ZONES = new Set(["Vinograd", "Maslinik", "Oranica", "Crnogorica", "Rasadnik", "Kamenjar", "Park", "TravnatePovrsine"]);
-const LEGITIMATE_ZONES = new Set(["SportskoIgraliste", "GospodarskePovrsine", "PovrsineTrajnijegKaraktera", "PovrsinaCeste", "Parkiraliste", "Dvoriste"]);
+const LEGITIMATE_ZONES = new Set(["SportskoIgraliste", "PovrsineCeste", "Parkiraliste"]);
 
 function getLandUse(pt) {
   const candidates = queryCandidates(pt, luGrid, CELL);
