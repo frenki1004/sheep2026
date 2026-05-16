@@ -146,14 +146,23 @@ map.on("load", async () => {
     const p = e.features[0].properties;
     const lon = p.centroid_lon || e.lngLat.lng;
     const lat = p.centroid_lat || e.lngLat.lat;
+    const statusLabel = { matched: "Registered", unregistered: "Unregistered", illegal_protected: "On protected land", katastarOnly: "Katastar only" };
+    const sourceLabel = p.source === "microsoft" ? "MS Building Footprints (satellite ML)" : "OSS Katastar (official registry)";
     let html = `
-      <b>Status:</b> ${p.status}<br/>
+      <b>${statusLabel[p.status] || p.status}</b><br/>
+      <span style="font-size:11px; color:#888;">Source: ${sourceLabel}</span><br/>
       <b>Area:</b> ${p.area_m2 ? Math.round(p.area_m2) + " m²" : "unknown"}<br/>
-      <b>Height:</b> ${p.height > 0 ? p.height + "m" : "est. 8m"}<br/>
     `;
     if (p.building_type) html += `<b>Type:</b> ${p.building_type}<br/>`;
     if (p.building_id) html += `<b>Zgrada ID:</b> ${p.building_id}<br/>`;
     if (p.land_zone && p.land_zone !== "unknown") html += `<b>Land zone:</b> ${p.land_zone}<br/>`;
+    if (p.status === "unregistered" || p.status === "illegal_protected") {
+      html += `<span style="font-size:10px; color:#aaa;">Detected by satellite, not in katastar</span><br/>`;
+    } else if (p.status === "katastarOnly") {
+      html += `<span style="font-size:10px; color:#aaa;">In katastar, not detected by satellite</span><br/>`;
+    } else if (p.status === "matched") {
+      html += `<span style="font-size:10px; color:#aaa;">Confirmed: satellite + katastar match</span><br/>`;
+    }
     html += `<div style="margin-top:4px; font-size:11px;">`;
     html += `<a href="https://www.google.com/maps/place/${lat},${lon}/@${lat},${lon},20z" target="_blank" style="color:#4da6ff; text-decoration:underline;">View on Google Maps</a>`;
     html += `</div>`;
