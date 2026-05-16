@@ -1,0 +1,40 @@
+{
+  "type": "FeatureCollection",
+  "features": [
+    {
+      "type": "Feature",
+      "properties": { "parcel_id": "Split/1234", "land_use": "građevinsko" },
+      "geometry": { "type": "Polygon", "coordinates": [[[16.4375, 43.5083], [16.4386, 43.5083], [16.4386, 43.5075], [16.4375, 43.5075], [16.4375, 43.5083]]] }
+    },
+    {
+      "type": "Feature",
+      "properties": { "parcel_id": "Split/1235", "land_use": "građevinsko" },
+      "geometry": { "type": "Polygon", "coordinates": [[[16.4386, 43.5085], [16.4396, 43.5085], [16.4396, 43.5076], [16.4386, 43.5076], [16.4386, 43.5085]]] }
+    },
+    {
+      "type": "Feature",
+      "properties": { "parcel_id": "Split/1240", "land_use": "poljoprivredno" },
+      "geometry": { "type": "Polygon", "coordinates": [[[16.4405, 43.5078], [16.4415, 43.5078], [16.4415, 43.5070], [16.4405, 43.5070], [16.4405, 43.5078]]] }
+    },
+    {
+      "type": "Feature",
+      "properties": { "parcel_id": "Split/1241", "land_use": "građevinsko" },
+      "geometry": { "type": "Polygon", "coordinates": [[[16.4415, 43.5088], [16.4428, 43.5088], [16.4428, 43.5078], [16.4415, 43.5078], [16.4415, 43.5088]]] }
+    },
+    {
+      "type": "Feature",
+      "properties": { "parcel_id": "Split/1250", "land_use": "poljoprivredno" },
+      "geometry": { "type": "Polygon", "coordinates": [[[16.4445, 43.5073], [16.4455, 43.5073], [16.4455, 43.5066], [16.4445, 43.5066], [16.4445, 43.5073]]] }
+    },
+    {
+      "type": "Feature",
+      "properties": { "parcel_id": "Split/1260", "land_use": "građevinsko" },
+      "geometry": { "type": "Polygon", "coordinates": [[[16.4430, 43.5093], [16.4442, 43.5093], [16.4442, 43.5084], [16.4430, 43.5084], [16.4430, 43.5093]]] }
+    },
+    {
+      "type": "Feature",
+      "properties": { "parcel_id": "Split/1270", "land_use": "građevinsko" },
+      "geometry": { "type": "Polygon", "coordinates": [[[16.4455, 43.5091], [16.4467, 43.5091], [16.4467, 43.5083], [16.4455, 43.5083], [16.4455, 43.5091]]] }
+    }
+  ]
+}

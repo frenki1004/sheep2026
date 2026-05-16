@@ -1,0 +1,97 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Split Building Ontology MVP</title>
+    <script>
+      window.CESIUM_BASE_URL =
+        "https://cesium.com/downloads/cesiumjs/releases/1.135/Build/Cesium/";
+    </script>
+    <script type="importmap">
+      {
+        "imports": {
+          "cesium": "https://cdn.jsdelivr.net/npm/cesium@1.135.0/+esm"
+        }
+      }
+    </script>
+    <link
+      rel="stylesheet"
+      href="https://cesium.com/downloads/cesiumjs/releases/1.135/Build/Cesium/Widgets/widgets.css"
+    />
+    <link rel="stylesheet" href="/assets/styles.css?v=20260516o" />
+    <script src="/assets/ion-token.local.js"></script>
+  </head>
+  <body>
+    <main class="app-shell">
+      <section id="cesiumContainer" aria-label="3D map of Split building discrepancies"></section>
+
+      <aside class="control-rail" aria-label="Map layers and discrepancy legend">
+        <div class="brand-block">
+          <span class="brand-mark">SO</span>
+          <div>
+            <h1>Split Ontology</h1>
+            <p>Local v3 dataset: Microsoft ML, OSS, DGU, parcels, land use</p>
+          </div>
+        </div>
+
+        <div class="metric-grid" id="metrics">
+          <div>
+            <span class="metric-value">-</span>
+            <span class="metric-label">Buildings</span>
+          </div>
+          <div>
+            <span class="metric-value">-</span>
+            <span class="metric-label">Priority Flags</span>
+          </div>
+        </div>
+
+        <div class="case-queue-block">
+          <div class="section-title-row">
+            <h2>Priority Parcels</h2>
+            <span id="caseQueueCount">-</span>
+          </div>
+          <div id="caseQueue" class="case-queue" aria-label="Ranked parcel enforcement queue"></div>
+        </div>
+
+        <div class="legend">
+          <h2>Discrepancy Type</h2>
+          <button class="legend-row" data-filter="priority" aria-pressed="true">
+            <span class="swatch all"></span>
+            <span>Priority flags</span>
+          </button>
+          <button class="legend-row" data-filter="registered_match" aria-pressed="false">
+            <span class="swatch registered_match"></span>
+            <span>Registered match</span>
+          </button>
+          <button class="legend-row" data-filter="unregistered" aria-pressed="false">
+            <span class="swatch unregistered"></span>
+            <span>Unregistered</span>
+          </button>
+          <button class="legend-row" data-filter="protected_land" aria-pressed="false">
+            <span class="swatch protected_land"></span>
+            <span>Protected land</span>
+          </button>
+          <button class="legend-row" data-filter="katastar_only" aria-pressed="false">
+            <span class="swatch katastar_only"></span>
+            <span>Katastar-only</span>
+          </button>
+        </div>
+
+        <div class="source-block">
+          <h2>Sources</h2>
+          <ul id="sourceList"></ul>
+        </div>
+      </aside>
+
+      <aside class="inspector" id="inspector" aria-label="Building inspector">
+        <div class="empty-state">
+          <h2>Select a building</h2>
+          <p>Click a colored footprint to inspect linked source observations and match evidence.</p>
+        </div>
+      </aside>
+    </main>
+
+    <script type="module" src="/assets/app.js?v=20260516v"></script>
+  </body>
+</html>
