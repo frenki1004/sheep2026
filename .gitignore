@@ -71,6 +71,13 @@ target/
 data/raw/
 data/interim/
 data/processed/
+data/cache/
+backend/data/cache/
+
+# SQLite databases — regenerable from ingest scripts
+*.db
+*.sqlite
+*.sqlite3
 models/checkpoints/
 wandb/
 mlruns/

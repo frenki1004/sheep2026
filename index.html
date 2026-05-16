@@ -138,13 +138,160 @@
 
       .places {
         position: fixed;
-        left: 14px;
+        left: 50%;
+        transform: translateX(-50%);
         bottom: 24px;
         z-index: 2;
         display: flex;
         flex-wrap: wrap;
         gap: 8px;
         pointer-events: auto;
+      }
+
+      .chat-panel {
+        position: fixed;
+        left: 14px;
+        bottom: 24px;
+        z-index: 3;
+        width: min(400px, calc(100vw - 28px));
+        max-height: 52vh;
+        background: var(--panel-strong);
+        border: 1px solid var(--line);
+        border-radius: 12px;
+        display: flex;
+        flex-direction: column;
+        pointer-events: auto;
+        box-shadow: 0 18px 40px rgba(0, 0, 0, 0.45);
+        overflow: hidden;
+      }
+
+      .chat-header {
+        padding: 12px 14px;
+        border-bottom: 1px solid var(--line);
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+      }
+
+      .chat-header h2 {
+        margin: 0;
+        font-size: 13px;
+        font-weight: 800;
+        text-transform: uppercase;
+        letter-spacing: 0.06em;
+      }
+
+      .chat-clear {
+        background: transparent;
+        border: none;
+        color: var(--muted);
+        cursor: pointer;
+        font-size: 12px;
+      }
+
+      .chat-msgs {
+        flex: 1;
+        padding: 10px 14px;
+        overflow-y: auto;
+        font-size: 13px;
+        line-height: 1.45;
+        min-height: 60px;
+      }
+
+      .chat-msg {
+        margin-bottom: 12px;
+      }
+
+      .chat-msg .meta {
+        font-size: 10px;
+        color: var(--muted);
+        text-transform: uppercase;
+        letter-spacing: 0.06em;
+        margin-bottom: 2px;
+      }
+
+      .chat-msg.user .text {
+        color: var(--text);
+        font-weight: 600;
+      }
+
+      .chat-msg.assistant .text {
+        color: var(--text);
+      }
+
+      .chat-msg.assistant .meta-line {
+        font-size: 11px;
+        color: var(--muted);
+        margin-top: 4px;
+      }
+
+      .chat-msg.error .text {
+        color: var(--danger);
+      }
+
+      .chat-empty {
+        font-size: 12px;
+        color: var(--muted);
+        line-height: 1.5;
+      }
+
+      .chat-suggestions {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 6px;
+        padding: 0 14px 10px;
+      }
+
+      .chat-suggestions .sug {
+        appearance: none;
+        font-family: inherit;
+        font-size: 11px;
+        font-weight: 600;
+        color: var(--text);
+        background: rgba(255, 255, 255, 0.07);
+        border: 1px solid var(--line);
+        border-radius: 999px;
+        padding: 5px 10px;
+        cursor: pointer;
+      }
+
+      .chat-suggestions .sug:hover {
+        border-color: rgba(120, 240, 214, 0.6);
+        background: rgba(120, 240, 214, 0.1);
+      }
+
+      .chat-form {
+        display: flex;
+        gap: 6px;
+        padding: 10px 12px 12px;
+        border-top: 1px solid var(--line);
+      }
+
+      .chat-form input {
+        flex: 1;
+        min-height: 36px;
+        border: 1px solid rgba(255, 255, 255, 0.22);
+        border-radius: 8px;
+        background: rgba(255, 255, 255, 0.08);
+        color: var(--text);
+        padding: 0 10px;
+        font-size: 13px;
+      }
+
+      .chat-form button {
+        min-height: 36px;
+        padding: 0 12px;
+        border-radius: 8px;
+        border: 1px solid rgba(120, 240, 214, 0.5);
+        background: rgba(88, 211, 199, 0.22);
+        color: #eafffb;
+        font-weight: 700;
+        cursor: pointer;
+      }
+
+      .chat-form button:disabled {
+        opacity: 0.5;
+        cursor: progress;
       }
 
       .chip {
@@ -169,6 +316,144 @@
 
       .status.error {
         color: var(--danger);
+      }
+
+      .button.active {
+        border-color: rgba(120, 240, 214, 0.85);
+        background: rgba(88, 211, 199, 0.35);
+        color: #eafffb;
+      }
+
+      .legend {
+        position: fixed;
+        right: 14px;
+        top: 84px;
+        z-index: 2;
+        background: var(--panel);
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        padding: 11px 13px;
+        font-size: 12px;
+        line-height: 1.5;
+        color: var(--text);
+        pointer-events: auto;
+        max-width: 220px;
+      }
+
+      .legend[hidden] { display: none; }
+
+      .legend h3 {
+        margin: 0 0 8px;
+        font-size: 13px;
+        font-weight: 800;
+        letter-spacing: 0.02em;
+        text-transform: uppercase;
+      }
+
+      .legend ul {
+        list-style: none;
+        margin: 0;
+        padding: 0;
+        display: grid;
+        gap: 5px;
+      }
+
+      .legend li {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+      }
+
+      .swatch {
+        width: 14px;
+        height: 14px;
+        border-radius: 3px;
+        border: 1px solid rgba(0, 0, 0, 0.25);
+      }
+
+      .evidence-panel {
+        position: fixed;
+        right: 14px;
+        top: 84px;
+        z-index: 3;
+        width: min(360px, calc(100vw - 28px));
+        max-height: calc(100vh - 110px);
+        overflow-y: auto;
+        background: var(--panel-strong);
+        border: 1px solid var(--line);
+        border-radius: 10px;
+        padding: 16px 18px;
+        color: var(--text);
+        box-shadow: 0 18px 40px rgba(0, 0, 0, 0.45);
+        pointer-events: auto;
+      }
+
+      .evidence-panel[hidden] { display: none; }
+
+      .evidence-panel h2 {
+        margin: 0 0 4px;
+        font-size: 16px;
+        line-height: 1.2;
+      }
+
+      .evidence-panel .ev-sub {
+        margin: 0 0 12px;
+        font-size: 12px;
+        color: var(--muted);
+      }
+
+      .evidence-panel section {
+        margin: 12px 0;
+        padding-top: 10px;
+        border-top: 1px solid var(--line);
+      }
+
+      .evidence-panel h3 {
+        margin: 0 0 6px;
+        font-size: 12px;
+        font-weight: 800;
+        text-transform: uppercase;
+        letter-spacing: 0.04em;
+        color: var(--muted);
+      }
+
+      .evidence-panel dl {
+        margin: 0;
+        display: grid;
+        grid-template-columns: 88px 1fr;
+        gap: 4px 10px;
+        font-size: 13px;
+      }
+
+      .evidence-panel dt {
+        color: var(--muted);
+      }
+
+      .evidence-panel dd {
+        margin: 0;
+      }
+
+      .evidence-panel .ev-close {
+        position: absolute;
+        top: 8px;
+        right: 10px;
+        background: transparent;
+        border: none;
+        color: var(--muted);
+        font-size: 22px;
+        cursor: pointer;
+        padding: 0;
+        line-height: 1;
+      }
+
+      .pill {
+        display: inline-block;
+        padding: 2px 8px;
+        border-radius: 999px;
+        font-size: 11px;
+        font-weight: 800;
+        letter-spacing: 0.04em;
+        text-transform: uppercase;
       }
 
       .token-panel {
@@ -288,21 +573,59 @@
     <div class="topbar">
       <section class="title-panel" aria-label="Viewer title">
         <h1>Split, Croatia</h1>
-        <p class="subtitle">Photorealistic 3D Tiles centered on the Riva, Diocletian's Palace, and the Marjan peninsula.</p>
+        <p class="subtitle">Photorealistic 3D tiles + cadastre / imagery legality overlay over the Žnjan pilot.</p>
       </section>
 
       <nav class="actions" aria-label="Viewer actions">
-        <button class="button primary" type="button" data-view="oldTown">Reset</button>
+        <button class="button primary active" type="button" data-mode="3d">3D</button>
+        <button class="button" type="button" data-mode="2d">2D legality</button>
+        <button class="button" type="button" data-view="znjan">Žnjan</button>
         <button class="button" type="button" data-token-open>Ion token</button>
       </nav>
     </div>
+
+    <aside class="legend" data-legend hidden aria-label="Legality legend">
+      <h3>Legality vs. cadastre</h3>
+      <ul>
+        <li><span class="swatch" style="background:#2ecc71"></span> Registered & observed</li>
+        <li><span class="swatch" style="background:#e74c3c"></span> Observed only (suspect)</li>
+        <li><span class="swatch" style="background:#95a5a6"></span> Registered only</li>
+        <li><span class="swatch" style="background:#f1c40f"></span> Under construction</li>
+      </ul>
+    </aside>
 
     <nav class="places" aria-label="Split viewpoints">
       <button class="chip" type="button" data-view="oldTown">Old Town</button>
       <button class="chip" type="button" data-view="riva">Riva</button>
       <button class="chip" type="button" data-view="marjan">Marjan</button>
       <button class="chip" type="button" data-view="bacvice">Bacvice</button>
+      <button class="chip" type="button" data-view="znjan">Žnjan</button>
     </nav>
+
+    <aside class="evidence-panel" data-evidence hidden aria-label="Building evidence"></aside>
+
+    <aside class="chat-panel" data-chat aria-label="Ask the ontology">
+      <header class="chat-header">
+        <h2>Ask the ontology</h2>
+        <button type="button" class="chat-clear" data-chat-clear title="Clear chat and highlights">Clear</button>
+      </header>
+      <div class="chat-msgs" data-chat-msgs>
+        <div class="chat-empty">
+          Ask in English or Croatian — e.g. <em>"how many illegal buildings over 200m²?"</em> or
+          <em>"najveće zgrade bez dozvole"</em>. Matching buildings highlight on the map.
+        </div>
+      </div>
+      <div class="chat-suggestions" data-chat-sugs>
+        <button class="sug" data-sug="How many illegal buildings are larger than 200 m²?">illegal > 200m²</button>
+        <button class="sug" data-sug="Show the biggest observed-only buildings in Žnjan.">biggest illegal</button>
+        <button class="sug" data-sug="Koliko zgrada je legalno upisano u katastru?">legalne zgrade</button>
+        <button class="sug" data-sug="Which parcels have illegal construction on residential land?">residential illegal</button>
+      </div>
+      <form class="chat-form" data-chat-form>
+        <input data-chat-input type="text" autocomplete="off" placeholder="Ask the ontology…" maxlength="500">
+        <button type="submit">Ask</button>
+      </form>
+    </aside>
 
     <div class="status" data-status>Loading Split viewer...</div>
 
@@ -323,11 +646,29 @@
       import * as Cesium from "https://cesium.com/downloads/cesiumjs/releases/1.141/Build/Cesium/index.js";
 
       const TOKEN_STORAGE_KEY = "split-viewer.cesiumIonToken";
+      const BACKEND_URL = (window.SHEEP_BACKEND_URL || "http://localhost:8000").replace(/\/$/, "");
+
+      const STATUS_STYLE = {
+        registered_and_observed: { fill: "#2ecc71", label: "Registered & observed" },
+        observed_only:           { fill: "#e74c3c", label: "Observed only (suspect)" },
+        registered_only:         { fill: "#95a5a6", label: "Registered only" },
+        under_construction:      { fill: "#f1c40f", label: "Under construction" },
+        unknown:                 { fill: "#7f8c8d", label: "Unknown" }
+      };
+
       const statusEl = document.querySelector("[data-status]");
       const tokenPanel = document.querySelector("[data-token-panel]");
       const tokenBackdrop = document.querySelector("[data-token-backdrop]");
       const tokenInput = document.querySelector("[data-token-input]");
       const tokenForm = document.querySelector("[data-token-form]");
+      const legendEl = document.querySelector("[data-legend]");
+      const evidenceEl = document.querySelector("[data-evidence]");
+      const modeButtons = document.querySelectorAll("[data-mode]");
+      const chatMsgsEl = document.querySelector("[data-chat-msgs]");
+      const chatForm = document.querySelector("[data-chat-form]");
+      const chatInput = document.querySelector("[data-chat-input]");
+      const chatClearBtn = document.querySelector("[data-chat-clear]");
+      const chatSugsEl = document.querySelector("[data-chat-sugs]");
 
       const splitViews = {
         oldTown: {
@@ -365,6 +706,15 @@
           heading: 318,
           pitch: -26,
           range: 820
+        },
+        znjan: {
+          label: "Žnjan",
+          longitude: 16.4900,
+          latitude: 43.5120,
+          height: 50,
+          heading: 180,
+          pitch: -45,
+          range: 1700
         }
       };
 
@@ -377,6 +727,11 @@
 
       let viewer = null;
       let tileset = null;
+      let osmLayer = null;
+      let buildingEntities = [];
+      let currentMode = "3d";
+      let pilotBbox = null;
+      let clickHandler = null;
 
       function setStatus(message, isError = false) {
         statusEl.textContent = message;
@@ -514,8 +869,17 @@
           infoBox: false,
           selectionIndicator: false,
           geocoder: Cesium.IonGeocodeProviderType.GOOGLE,
-          globe: false
+          baseLayer: new Cesium.ImageryLayer(
+            new Cesium.UrlTemplateImageryProvider({
+              url: "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}",
+              maximumLevel: 19,
+              credit: "Esri, Maxar, Earthstar Geographics, CNES/Airbus DS, USDA, USGS"
+            })
+          )
         });
+
+        // Capture the OSM base layer so ensureOsmLayer() doesn't double-add when switching modes.
+        osmLayer = viewer.imageryLayers.get(0);
 
         viewer.scene.skyAtmosphere.show = true;
         viewer.scene.highDynamicRange = true;
@@ -528,20 +892,434 @@
         loadPhotorealisticTiles();
       }
 
+      async function fetchPilotBbox() {
+        try {
+          const resp = await fetch(`${BACKEND_URL}/config/pilot`);
+          if (!resp.ok) throw new Error(`pilot config HTTP ${resp.status}`);
+          const data = await resp.json();
+          pilotBbox = data.bbox;  // [minLon, minLat, maxLon, maxLat]
+          return pilotBbox;
+        } catch (err) {
+          console.warn("Could not reach backend at", BACKEND_URL, err);
+          setStatus("Backend offline — 2D overlay disabled. Start FastAPI on " + BACKEND_URL + ".", true);
+          return null;
+        }
+      }
+
+      function clearBuildingEntities() {
+        for (const e of buildingEntities) viewer.entities.remove(e);
+        buildingEntities = [];
+      }
+
+      function ringToCartesians(ring) {
+        // Backend serves GeoJSON: [lon, lat] order.
+        const flat = [];
+        for (const [lon, lat] of ring) { flat.push(lon, lat); }
+        return Cesium.Cartesian3.fromDegreesArray(flat);
+      }
+
+      function addBuildingEntity(feature) {
+        const status = feature.properties.status || "unknown";
+        const style = STATUS_STYLE[status] || STATUS_STYLE.unknown;
+        const geom = feature.geometry;
+        if (!geom || geom.type !== "Polygon") return;
+        const positions = ringToCartesians(geom.coordinates[0]);
+        const fillColor = Cesium.Color.fromCssColorString(style.fill).withAlpha(0.55);
+        const outlineColor = Cesium.Color.fromCssColorString(style.fill);
+        const entity = viewer.entities.add({
+          id: feature.id,
+          polygon: {
+            hierarchy: positions,
+            material: fillColor,
+            outline: true,
+            outlineColor: outlineColor,
+            outlineWidth: 2,
+            classificationType: Cesium.ClassificationType.BOTH,
+            height: 0,
+            heightReference: Cesium.HeightReference.CLAMP_TO_GROUND
+          },
+          properties: {
+            sheepStatus: status,
+            confidence: feature.properties.confidence,
+            area_m2: feature.properties.area_m2,
+            parcel_id: feature.properties.parcel_id
+          }
+        });
+        buildingEntities.push(entity);
+      }
+
+      async function loadBuildingsOverlay() {
+        if (!pilotBbox) {
+          await fetchPilotBbox();
+          if (!pilotBbox) return;
+        }
+        setStatus("Loading buildings overlay from backend...");
+        const bboxStr = pilotBbox.join(",");
+        try {
+          const resp = await fetch(`${BACKEND_URL}/buildings?bbox=${bboxStr}&limit=20000`);
+          if (!resp.ok) throw new Error(`/buildings HTTP ${resp.status}`);
+          const fc = await resp.json();
+          clearBuildingEntities();
+          for (const f of fc.features) addBuildingEntity(f);
+          const counts = { registered_and_observed: 0, observed_only: 0, registered_only: 0 };
+          for (const f of fc.features) {
+            counts[f.properties.status] = (counts[f.properties.status] || 0) + 1;
+          }
+          setStatus(`Loaded ${fc.count} buildings — ${counts.observed_only || 0} flagged as observed-only (suspect).`);
+        } catch (err) {
+          console.error(err);
+          setStatus(`Failed to load buildings: ${err.message}`, true);
+        }
+      }
+
+      function ensureOsmLayer() {
+        // Reuses the existing base layer (ESRI satellite) — kept for compatibility with switchMode().
+        if (osmLayer) return osmLayer;
+        osmLayer = viewer.imageryLayers.get(0);
+        return osmLayer;
+      }
+
+      function showLegend(show) {
+        if (legendEl) legendEl.hidden = !show;
+      }
+
+      function setActiveModeButton(mode) {
+        for (const btn of modeButtons) {
+          btn.classList.toggle("active", btn.dataset.mode === mode);
+          btn.classList.toggle("primary", btn.dataset.mode === mode);
+        }
+      }
+
+      function flyToZnjan2D() {
+        const v = splitViews.znjan;
+        viewer.camera.flyTo({
+          destination: Cesium.Rectangle.fromDegrees(
+            v.longitude - 0.015, v.latitude - 0.008,
+            v.longitude + 0.015, v.latitude + 0.008
+          ),
+          duration: 1.2
+        });
+      }
+
+      async function switchMode(mode) {
+        if (!viewer || mode === currentMode) return;
+        currentMode = mode;
+        setActiveModeButton(mode);
+        if (mode === "2d") {
+          if (tileset) tileset.show = false;
+          ensureOsmLayer();
+          viewer.scene.mode = Cesium.SceneMode.SCENE2D;
+          showLegend(true);
+          if (buildingEntities.length === 0) {
+            await loadBuildingsOverlay();
+          }
+          flyToZnjan2D();
+        } else {
+          if (tileset) tileset.show = true;
+          // Keep OSM as base layer for 3D too — Photorealistic Tiles cover it visually.
+          viewer.scene.mode = Cesium.SceneMode.SCENE3D;
+          showLegend(false);
+          flyToView("oldTown", 1.4);
+        }
+      }
+
+      function templateExplain(data) {
+        const sources = data.observed.map((o) => o.source);
+        const distinctSources = [...new Set(sources)];
+        const area = data.area_m2 ? Math.round(data.area_m2) : null;
+        const parcel = data.parcel;
+        const landUse = parcel && parcel.land_use ? parcel.land_use : null;
+        const broj = parcel && parcel.broj_cestice ? parcel.broj_cestice : null;
+
+        if (data.status === "observed_only") {
+          const srcText = distinctSources.length === 0
+            ? "no imagery source (anomaly)"
+            : distinctSources.length === 1
+              ? `${distinctSources[0]}`
+              : `${distinctSources.length} independent imagery sources (${distinctSources.join(", ")})`;
+          const parcelText = broj
+            ? ` Sits on parcel ${broj}${landUse ? ` (${landUse})` : ""}.`
+            : " Not yet matched to a known cadastral parcel.";
+          const severity = area && area > 100 && landUse && landUse.startsWith("stambeno")
+            ? " Large footprint on residential land — strong illegal-construction signal."
+            : "";
+          return `Visible in ${srcText} but absent from the DGU buildings registry.${parcelText}${severity}`;
+        }
+        if (data.status === "registered_and_observed") {
+          return `Confirmed legal: footprint is in the DGU registry${
+            data.registered[0] && data.registered[0].source_id ? ` (${data.registered[0].source_id})` : ""
+          } and visible in ${distinctSources.length} imagery source${distinctSources.length === 1 ? "" : "s"}.${
+            broj ? ` Parcel ${broj}${landUse ? `, ${landUse}` : ""}.` : ""
+          }`;
+        }
+        if (data.status === "registered_only") {
+          return `In the DGU registry but no imagery footprint matched at IoU ≥ 0.30. Possibly demolished, below detection size, or off by a few metres in either dataset.`;
+        }
+        return "Status not yet classified.";
+      }
+
+      function renderEvidence(data) {
+        const style = STATUS_STYLE[data.status] || STATUS_STYLE.unknown;
+        const obs = data.observed.map((o) => o.source).join(", ") || "—";
+        const reg = data.registered.length
+          ? data.registered.map((r) => `${r.source}:${r.source_id}`).join(", ")
+          : "—";
+        const parcel = data.parcel
+          ? `${data.parcel.broj_cestice || "(no parcel #)"}${data.parcel.land_use ? " — " + data.parcel.land_use : ""}`
+          : "Not on a known cadastral parcel";
+        evidenceEl.innerHTML = `
+          <button class="ev-close" data-ev-close>×</button>
+          <h2>Building evidence</h2>
+          <p class="ev-sub">
+            <span class="pill" style="background:${style.fill};color:#0b1316">${style.label}</span>
+            &nbsp;<span style="color:var(--muted)">conf ${(data.confidence ?? 0).toFixed(2)}</span>
+          </p>
+          <dl>
+            <dt>Area</dt><dd>${data.area_m2 ? data.area_m2.toFixed(0) + " m²" : "—"}</dd>
+            <dt>Parcel</dt><dd>${parcel}</dd>
+            <dt>Observed in</dt><dd>${obs}</dd>
+            <dt>Registered as</dt><dd>${reg}</dd>
+            <dt>Review</dt><dd>${data.review_open ? "🟠 Open in queue" : "—"}</dd>
+          </dl>
+          <section>
+            <h3>Why this status</h3>
+            <p data-ev-explain style="margin:0;font-size:13px;line-height:1.45;color:var(--text)">
+              ${templateExplain(data)}
+            </p>
+            <p data-ev-explain-meta style="margin:6px 0 0;font-size:11px;color:var(--muted);font-style:italic">
+              Auto-generated from evidence. Loading analyst note…
+            </p>
+          </section>
+        `;
+        evidenceEl.hidden = false;
+        evidenceEl.querySelector("[data-ev-close]").addEventListener("click", () => {
+          evidenceEl.hidden = true;
+        });
+        // Kick off Claude analyst note asynchronously.
+        fetchExplanation(data.id);
+      }
+
+      async function fetchExplanation(buildingId) {
+        const target = evidenceEl.querySelector("[data-ev-explain]");
+        const meta = evidenceEl.querySelector("[data-ev-explain-meta]");
+        if (!target) return;
+        try {
+          const resp = await fetch(`${BACKEND_URL}/buildings/${encodeURIComponent(buildingId)}/explain`);
+          if (!resp.ok) {
+            const detail = await resp.json().catch(() => ({ detail: `HTTP ${resp.status}` }));
+            if (meta) meta.textContent = `Analyst note unavailable: ${detail.detail || resp.status}`;
+            return;
+          }
+          const data = await resp.json();
+          if (target) target.textContent = data.explanation;
+          if (meta) meta.textContent = "Analyst note generated by Claude from the building's evidence.";
+        } catch (err) {
+          if (meta) meta.textContent = `Analyst note unavailable: ${err.message}`;
+        }
+      }
+
+      async function onBuildingClick(buildingId) {
+        try {
+          const resp = await fetch(`${BACKEND_URL}/buildings/${encodeURIComponent(buildingId)}/evidence`);
+          if (!resp.ok) throw new Error(`evidence HTTP ${resp.status}`);
+          renderEvidence(await resp.json());
+        } catch (err) {
+          console.error(err);
+          setStatus(`Could not fetch evidence: ${err.message}`, true);
+        }
+      }
+
+      // --- NL ask chat ---------------------------------------------------
+
+      let highlightedIds = new Set();
+
+      function appendMsg(role, text, meta) {
+        const empty = chatMsgsEl.querySelector(".chat-empty");
+        if (empty) empty.remove();
+        const div = document.createElement("div");
+        div.className = `chat-msg ${role}`;
+        const safeText = (text || "").replace(/[&<>]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;" }[c]));
+        let html = `<div class="meta">${role === "user" ? "You" : role === "error" ? "Error" : "Ontology"}</div><div class="text">${safeText}</div>`;
+        if (meta) html += `<div class="meta-line">${meta}</div>`;
+        div.innerHTML = html;
+        chatMsgsEl.appendChild(div);
+        chatMsgsEl.scrollTop = chatMsgsEl.scrollHeight;
+      }
+
+      function clearHighlights() {
+        for (const id of highlightedIds) {
+          const ent = viewer && viewer.entities.getById(id);
+          if (!ent || !ent.polygon) continue;
+          const status = ent.properties && ent.properties.sheepStatus
+            ? ent.properties.sheepStatus.getValue()
+            : "unknown";
+          const style = STATUS_STYLE[status] || STATUS_STYLE.unknown;
+          ent.polygon.material = Cesium.Color.fromCssColorString(style.fill).withAlpha(0.55);
+          ent.polygon.outlineColor = Cesium.Color.fromCssColorString(style.fill);
+          ent.polygon.outlineWidth = 2;
+        }
+        highlightedIds.clear();
+        for (const e of buildingEntities) if (e.polygon) e.show = true;
+      }
+
+      function applyHighlights(ids) {
+        if (!viewer || !ids || ids.length === 0) return;
+        const ionCyan = Cesium.Color.fromCssColorString("#58d3c7");
+        const setIds = new Set(ids);
+        let minLon = 180, minLat = 90, maxLon = -180, maxLat = -90;
+        let any = false;
+        for (const e of buildingEntities) {
+          if (!e.polygon) continue;
+          if (setIds.has(e.id)) {
+            e.polygon.material = ionCyan.withAlpha(0.65);
+            e.polygon.outlineColor = Cesium.Color.fromCssColorString("#eafffb");
+            e.polygon.outlineWidth = 3;
+            highlightedIds.add(e.id);
+            // Compute centroid-ish from polygon hierarchy for fly-to-bounds.
+            const hier = e.polygon.hierarchy.getValue();
+            const positions = hier.positions || hier;
+            for (const p of positions) {
+              const carto = Cesium.Cartographic.fromCartesian(p);
+              const lon = Cesium.Math.toDegrees(carto.longitude);
+              const lat = Cesium.Math.toDegrees(carto.latitude);
+              if (lon < minLon) minLon = lon;
+              if (lon > maxLon) maxLon = lon;
+              if (lat < minLat) minLat = lat;
+              if (lat > maxLat) maxLat = lat;
+              any = true;
+            }
+          } else {
+            // Dim non-matches.
+            const status = e.properties.sheepStatus.getValue();
+            const style = STATUS_STYLE[status] || STATUS_STYLE.unknown;
+            e.polygon.material = Cesium.Color.fromCssColorString(style.fill).withAlpha(0.12);
+            e.polygon.outlineColor = Cesium.Color.fromCssColorString(style.fill).withAlpha(0.25);
+          }
+        }
+        if (any) {
+          const padLon = Math.max(0.001, (maxLon - minLon) * 0.6);
+          const padLat = Math.max(0.001, (maxLat - minLat) * 0.6);
+          viewer.camera.flyTo({
+            destination: Cesium.Rectangle.fromDegrees(
+              minLon - padLon, minLat - padLat,
+              maxLon + padLon, maxLat + padLat
+            ),
+            duration: 1.0,
+          });
+        }
+      }
+
+      async function askOntology(question) {
+        appendMsg("user", question);
+        appendMsg("assistant", "Thinking…");
+        const thinkingNode = chatMsgsEl.lastElementChild;
+        try {
+          const resp = await fetch(`${BACKEND_URL}/ask`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ question }),
+          });
+          const data = await resp.json();
+          thinkingNode.remove();
+          if (!resp.ok) {
+            appendMsg("error", data.detail || `HTTP ${resp.status}`);
+            return;
+          }
+          const meta = data.count !== undefined && data.count !== null
+            ? `matched ${data.count} buildings · ${(data.total_area_m2 || 0).toLocaleString()} m² total`
+            : "";
+          appendMsg("assistant", data.answer, meta);
+          clearHighlights();
+          if (data.building_ids && data.building_ids.length > 0) {
+            applyHighlights(data.building_ids);
+          }
+        } catch (err) {
+          thinkingNode.remove();
+          appendMsg("error", err.message);
+        }
+      }
+
+      chatForm.addEventListener("submit", (event) => {
+        event.preventDefault();
+        const q = chatInput.value.trim();
+        if (!q) return;
+        chatInput.value = "";
+        askOntology(q);
+      });
+
+      chatClearBtn.addEventListener("click", () => {
+        chatMsgsEl.innerHTML = '<div class="chat-empty">Ask in English or Croatian — matching buildings highlight on the map.</div>';
+        clearHighlights();
+      });
+
+      chatSugsEl.addEventListener("click", (event) => {
+        const btn = event.target.closest("[data-sug]");
+        if (!btn) return;
+        chatInput.value = btn.dataset.sug;
+        chatForm.dispatchEvent(new Event("submit"));
+      });
+
+      function installClickHandler() {
+        if (!viewer) return;
+        if (clickHandler) clickHandler.destroy();
+        clickHandler = new Cesium.ScreenSpaceEventHandler(viewer.scene.canvas);
+        clickHandler.setInputAction((click) => {
+          const picked = viewer.scene.pick(click.position);
+          if (picked && picked.id && typeof picked.id.id === "string" && picked.id.id.startsWith("building:")) {
+            onBuildingClick(picked.id.id);
+          }
+        }, Cesium.ScreenSpaceEventType.LEFT_CLICK);
+      }
+
       function boot() {
         const token = readTokenFromQuery() || getStoredToken();
 
         if (!token) {
-          setStatus("Add a Cesium ion token to load Google Photorealistic 3D Tiles.", true);
-          openTokenPanel();
+          setStatus("Add a Cesium Ion token for 3D tiles, or click 2D legality to use the cadastre overlay without a token.", true);
+          // 2D mode doesn't need a token — start a globe-free viewer for it.
+          create2DOnlyViewer();
           return;
         }
 
         createViewer(token);
+        installClickHandler();
+      }
+
+      function create2DOnlyViewer() {
+        viewer = new Cesium.Viewer("cesiumContainer", {
+          timeline: false,
+          animation: false,
+          sceneModePicker: false,
+          baseLayerPicker: false,
+          homeButton: false,
+          navigationHelpButton: false,
+          fullscreenButton: false,
+          infoBox: false,
+          selectionIndicator: false,
+          baseLayer: new Cesium.ImageryLayer(
+            new Cesium.UrlTemplateImageryProvider({
+              url: "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}",
+              maximumLevel: 19,
+              credit: "Esri, Maxar, Earthstar Geographics, CNES/Airbus DS, USDA, USGS"
+            })
+          )
+        });
+        // Mark the default base layer as our OSM layer so ensureOsmLayer() doesn't double-add.
+        osmLayer = viewer.imageryLayers.get(0);
+        viewer.scene.mode = Cesium.SceneMode.SCENE2D;
+        currentMode = "2d";
+        setActiveModeButton("2d");
+        showLegend(true);
+        installClickHandler();
+        loadBuildingsOverlay().then(() => flyToZnjan2D());
       }
 
       document.querySelectorAll("[data-view]").forEach((button) => {
         button.addEventListener("click", () => flyToView(button.dataset.view));
+      });
+
+      modeButtons.forEach((btn) => {
+        btn.addEventListener("click", () => switchMode(btn.dataset.mode));
       });
 
       document.querySelector("[data-token-open]").addEventListener("click", openTokenPanel);
